@@ -6,6 +6,10 @@ precisa ser uma cidade -- `point_at_bearing` gera um ponto a uma distância
 e azimute dados, o que deixa a geometria da passagem como parâmetro.
 
     uv run python examples/pass_over_salvador.py
+
+Para ver a mesma passagem num mapa animado, use a interface web:
+
+    uv run my-pass-web
 """
 
 from __future__ import annotations
@@ -15,33 +19,15 @@ import math
 
 from passpredict import Location, Observer, SGP4Propagator
 
-from my_pass_prediction.fake_tle import GroundPoint, generate_fake_tle, subpoint
+from my_pass_prediction.fake_tle import (
+    GroundPoint,
+    generate_fake_tle,
+    point_at_bearing,
+    subpoint,
+)
 
 SALVADOR = GroundPoint(-12.9777, -38.5016)
 UTC = dt.timezone.utc
-
-
-def point_at_bearing(
-    origin: GroundPoint, bearing_deg: float, arc_deg: float
-) -> GroundPoint:
-    """Ponto a `arc_deg` de distância angular, no azimute `bearing_deg`.
-
-    Navegação por grande círculo. Serve para escolher por onde a órbita
-    passa sem precisar caçar uma cidade conveniente no mapa: o azimute
-    vira a direção da ground track sobre a origem.
-    """
-    lat1, lon1 = origin.lat_rad, origin.lon_rad
-    bearing, arc = math.radians(bearing_deg), math.radians(arc_deg)
-
-    lat2 = math.asin(
-        math.sin(lat1) * math.cos(arc)
-        + math.cos(lat1) * math.sin(arc) * math.cos(bearing)
-    )
-    lon2 = lon1 + math.atan2(
-        math.sin(bearing) * math.sin(arc) * math.cos(lat1),
-        math.cos(arc) - math.sin(lat1) * math.sin(lat2),
-    )
-    return GroundPoint(math.degrees(lat2), (math.degrees(lon2) + 540.0) % 360.0 - 180.0)
 
 
 def main() -> None:
@@ -50,7 +36,11 @@ def main() -> None:
 
     # Azimute 200 graus = ground track rumo sul-sudoeste (passagem
     # descendente). Troque para 20 graus e ela vira ascendente.
-    heading = point_at_bearing(SALVADOR, bearing_deg=200.0, arc_deg=20.0)
+    heading = GroundPoint(
+        *point_at_bearing(
+            SALVADOR.lat_deg, SALVADOR.lon_deg, bearing_deg=200.0, arc_deg=20.0
+        )
+    )
 
     tle, solution = generate_fake_tle(SALVADOR, heading, epoch, altitude_km=500.0)
 

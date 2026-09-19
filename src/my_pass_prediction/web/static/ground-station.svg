@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Estação em solo">
+  <!-- Antena parabólica apontada para cima e à direita. O ponto de
+       ancoragem é a base do pedestal, não o centro: é a base que está
+       de fato nas coordenadas da estação. -->
+  <g stroke="#0b1018" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+    <!-- pedestal -->
+    <path d="M20 61h24l-5.5-12h-13z" fill="#b9c7d8" />
+    <!-- mastro -->
+    <path d="M31 50 35.5 35" stroke-width="7" />
+    <path d="M31 50 35.5 35" stroke="#b9c7d8" stroke-width="3.4" />
+    <!-- prato -->
+    <ellipse cx="32" cy="28" rx="18" ry="11.5" transform="rotate(-32 32 28)" fill="#4da3ff" />
+    <!-- braço e alimentador -->
+    <path d="M32 28 45.5 14.5" stroke-width="5" />
+    <path d="M32 28 45.5 14.5" stroke="#e6edf5" stroke-width="2.4" />
+    <circle cx="46.5" cy="13.5" r="3.6" fill="#ff5a5f" />
+  </g>
+  <!-- concavidade: elipse interna mais escura, deslocada para o foco -->
+  <ellipse cx="33.5" cy="29.5" rx="12" ry="7" transform="rotate(-32 33.5 29.5)"
+           fill="#0b1018" opacity="0.22" />
+</svg>

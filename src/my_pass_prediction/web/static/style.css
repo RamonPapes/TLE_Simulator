@@ -1,0 +1,298 @@
+:root {
+  --bg: #0f141b;
+  --panel: #161d27;
+  --panel-border: #2a3543;
+  --ink: #e6edf5;
+  --ink-dim: #93a4b8;
+  --accent: #4da3ff;
+  --track: #ff5a5f;
+  --visible: #4dff9d;
+  --danger: #ff8080;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+#map { position: absolute; inset: 0; z-index: 0; }
+
+/* ---------- painel de parâmetros ---------- */
+
+#panel {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1000;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  overflow-y: auto;
+  padding: 14px 16px 16px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.45);
+}
+
+#panel header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#panel h1 { margin: 0; font-size: 15px; letter-spacing: 0.01em; }
+
+#toggle-panel {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+#toggle-panel:hover { color: var(--ink); border-color: var(--accent); }
+
+#panel.collapsed > form,
+#panel.collapsed > #results,
+#panel.collapsed > #error { display: none; }
+
+fieldset {
+  margin: 12px 0 0;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+
+legend {
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-dim);
+}
+
+label {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+fieldset > label:first-of-type { margin-top: 0; }
+
+.row { display: flex; gap: 10px; }
+.row > label { flex: 1; min-width: 0; }
+
+input, select {
+  display: block;
+  width: 100%;
+  margin-top: 3px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--ink);
+  background: #0c1118;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+.hint {
+  margin: 8px 0 0;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink-dim);
+}
+
+#simulate {
+  width: 100%;
+  margin-top: 14px;
+  padding: 9px;
+  font: inherit;
+  font-weight: 600;
+  color: #04121f;
+  background: var(--accent);
+  border: 0;
+  border-radius: 7px;
+  cursor: pointer;
+}
+#simulate:hover { filter: brightness(1.08); }
+#simulate[disabled] { opacity: 0.55; cursor: progress; }
+
+#error {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  font-size: 12px;
+  color: var(--danger);
+  background: rgb(255 90 95 / 0.09);
+  border: 1px solid rgb(255 90 95 / 0.35);
+  border-radius: 7px;
+}
+
+/* ---------- resultados ---------- */
+
+#results { margin-top: 14px; }
+
+#summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+  font-size: 12px;
+}
+#summary dt { color: var(--ink-dim); }
+#summary dd { margin: 0; font-variant-numeric: tabular-nums; }
+
+details summary {
+  font-size: 12px;
+  color: var(--ink-dim);
+  cursor: pointer;
+}
+
+#tle {
+  margin: 8px 0;
+  padding: 8px;
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  white-space: pre;
+  background: #0c1118;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+
+#copy-tle {
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+#copy-tle:hover { color: var(--ink); border-color: var(--accent); }
+
+/* ---------- barra de reprodução ---------- */
+
+#playback {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(620px, calc(100vw - 24px));
+  padding: 10px 14px;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.45);
+}
+
+#play {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 14px;
+  color: var(--ink);
+  background: #0c1118;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+#play:hover { border-color: var(--accent); }
+
+#slider { flex: 1; min-width: 0; margin: 0; padding: 0; accent-color: var(--accent); }
+
+#readout {
+  flex: none;
+  min-width: 132px;
+  font-family: ui-monospace, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-dim);
+  text-align: right;
+}
+
+#speed-label { flex: none; margin: 0; font-size: 11px; }
+#speed-label select { width: auto; margin-top: 2px; padding: 3px 4px; font-size: 11px; }
+
+/* ---------- popups do Leaflet no tema escuro ---------- */
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  color: var(--ink);
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+}
+.leaflet-popup-content { margin: 9px 12px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.leaflet-container { background: #0a0e14; }
+
+.leaflet-control-attribution {
+  font-size: 10px;
+  color: var(--ink-dim);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+}
+.leaflet-control-attribution a { color: var(--accent); }
+
+/* Seletor de camadas e zoom no tema escuro. */
+.leaflet-control-layers,
+.leaflet-bar a {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--panel) 94%, transparent);
+  border-color: var(--panel-border);
+  backdrop-filter: blur(6px);
+}
+.leaflet-bar a:hover { background: var(--panel); color: var(--accent); }
+.leaflet-bar a,
+.leaflet-control-layers { box-shadow: 0 4px 16px rgb(0 0 0 / 0.45); }
+
+.leaflet-control-layers-expanded {
+  padding: 8px 12px 8px 8px;
+  border-radius: 8px;
+}
+.leaflet-control-layers-list label {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ink);
+}
+.leaflet-control-layers-selector { width: auto; margin-right: 5px; accent-color: var(--accent); }
+.leaflet-control-layers-toggle {
+  filter: invert(1) hue-rotate(180deg) brightness(1.1);
+}
+
+/* Sombra projetada, e não box-shadow: os ícones são SVG com fundo
+   transparente, então o halo tem que seguir o contorno do desenho.
+   Sem ela, o traço escuro do ícone some sobre a camada de satélite,
+   onde o mapa fica tão escuro quanto ele. */
+.sat-icon {
+  filter: drop-shadow(0 0 5px rgb(255 90 95 / 0.85))
+          drop-shadow(0 1px 3px rgb(0 0 0 / 0.65));
+}
+.station-icon {
+  filter: drop-shadow(0 0 4px rgb(77 163 255 / 0.7))
+          drop-shadow(0 1px 3px rgb(0 0 0 / 0.65));
+}
+
+@media (max-width: 620px) {
+  #panel { width: calc(100vw - 24px); max-height: 60vh; }
+  #playback { flex-wrap: wrap; }
+  #slider { order: 3; flex-basis: 100%; }
+  #readout { min-width: 0; }
+}

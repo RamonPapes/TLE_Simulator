@@ -15,6 +15,7 @@ dependencies = [
 
 [project.scripts]
 my-pass-prediction = "my_pass_prediction:main"
+my-pass-web = "my_pass_prediction.web.server:main"
 
 [build-system]
 requires = ["uv_build>=0.12.8,<0.13.0"]

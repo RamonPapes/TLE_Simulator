@@ -28,7 +28,7 @@ from .generator import (
     Sgp4AltitudeProbe,
     subpoint,
 )
-from .geometry import DegenerateGeometryError
+from .geometry import DegenerateGeometryError, point_at_bearing
 from .models import GroundPoint, OrbitalElements, PassSolution, TleIdentity
 from .protocols import AltitudeProbe, EarthModel, SiderealTime
 from .solver import ConvergenceError, OverheadPassSolver
@@ -56,6 +56,7 @@ __all__ = [
     "EarthModel",
     "AltitudeProbe",
     "subpoint",
+    "point_at_bearing",
     "PatchedTLE",
 ]
 

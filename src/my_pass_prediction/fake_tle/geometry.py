@@ -26,6 +26,7 @@ __all__ = [
     "argument_of_latitude",
     "rotate_about_axis",
     "central_angle_for_elevation",
+    "point_at_bearing",
 ]
 
 # WGS84. O valor exato importa pouco: a calibração de Kozai em
@@ -148,3 +149,29 @@ def central_angle_for_elevation(elevation_deg: float, altitude_km: float) -> flo
     elev = math.radians(elevation_deg)
     r = R_EARTH_KM + altitude_km
     return math.acos(min(1.0, max(-1.0, (R_EARTH_KM / r) * math.cos(elev)))) - elev
+
+
+def point_at_bearing(
+    lat_deg: float, lon_deg: float, bearing_deg: float, arc_deg: float
+) -> tuple[float, float]:
+    """Ponto a `arc_deg` de distância angular, no azimute `bearing_deg`.
+
+    Navegação por grande círculo sobre a esfera. Serve para escolher por
+    onde a órbita passa sem precisar caçar uma cidade conveniente no
+    mapa: o azimute vira a direção da ground track sobre a origem.
+
+    Trabalha em graus, e não em radianos como o resto do módulo, porque
+    só existe para a fronteira -- é o que o usuário digita.
+    """
+    lat1, lon1 = math.radians(lat_deg), math.radians(lon_deg)
+    bearing, arc = math.radians(bearing_deg), math.radians(arc_deg)
+
+    lat2 = math.asin(
+        math.sin(lat1) * math.cos(arc)
+        + math.cos(lat1) * math.sin(arc) * math.cos(bearing)
+    )
+    lon2 = lon1 + math.atan2(
+        math.sin(bearing) * math.sin(arc) * math.cos(lat1),
+        math.cos(arc) - math.sin(lat1) * math.sin(lat2),
+    )
+    return math.degrees(lat2), (math.degrees(lon2) + 540.0) % 360.0 - 180.0
