@@ -14,6 +14,7 @@ import argparse
 import http.server
 import json
 import mimetypes
+import os
 import pathlib
 import socketserver
 import sys
@@ -23,10 +24,17 @@ from typing import Any
 
 from .api import InvalidRequestError, compute_pass
 
-__all__ = ["PassRequestHandler", "serve", "main"]
+__all__ = ["PassRequestHandler", "build_parser", "serve", "main"]
 
 STATIC_DIR = pathlib.Path(__file__).parent / "static"
 INDEX = "index.html"
+
+# Plataformas de hospedagem (Render, Railway, Fly) escolhem a porta e a
+# anunciam em $PORT; um container que ignore isso não recebe tráfego.
+# Como padrão local segue o localhost, que é o que uma ferramenta de
+# desenvolvimento deve fazer -- expor 0.0.0.0 tem que ser deliberado.
+DEFAULT_HOST = os.environ.get("HOST", "127.0.0.1")
+DEFAULT_PORT = int(os.environ.get("PORT", "8000"))
 
 # Teto do corpo de uma requisição. O payload legítimo tem algumas
 # centenas de bytes; ler sem limite deixaria um POST gigante consumir
@@ -151,8 +159,8 @@ class _ThreadingServer(socketserver.ThreadingTCPServer):
 
 
 def serve(
-    host: str = "127.0.0.1",
-    port: int = 8000,
+    host: str = DEFAULT_HOST,
+    port: int = DEFAULT_PORT,
     open_browser: bool = True,
     quiet: bool = False,
 ) -> None:
@@ -180,20 +188,32 @@ def serve(
             print("\nencerrando")
 
 
-def main(argv: list[str] | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
+    """Separado de `main` para que os padrões sejam testáveis sem subir nada."""
     parser = argparse.ArgumentParser(
         prog="my-pass-web",
         description="Interface web do simulador de passagens com TLE sintético.",
     )
-    parser.add_argument("--host", default="127.0.0.1", help="padrão: 127.0.0.1")
     parser.add_argument(
-        "--port", type=int, default=8000, help="padrão: 8000; use 0 para escolher livre"
+        "--host",
+        default=DEFAULT_HOST,
+        help=f"padrão: {DEFAULT_HOST} (ou $HOST)",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=DEFAULT_PORT,
+        help=f"padrão: {DEFAULT_PORT} (ou $PORT); use 0 para escolher uma livre",
     )
     parser.add_argument(
         "--no-browser", action="store_true", help="não abrir o navegador"
     )
     parser.add_argument("-q", "--quiet", action="store_true", help="sem log de acesso")
-    args = parser.parse_args(argv)
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
 
     try:
         serve(

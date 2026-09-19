@@ -1,0 +1,11 @@
+# Blueprint da Render: com este arquivo no repositório, o painel lê a
+# configuração daqui em vez de você preencher os campos na mão.
+services:
+  - type: web
+    name: tle-simulator
+    runtime: docker
+    plan: free
+    branch: develop
+    region: oregon
+    healthCheckPath: /
+    autoDeploy: true

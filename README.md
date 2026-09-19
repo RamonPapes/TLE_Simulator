@@ -77,6 +77,29 @@ src/my_pass_prediction/
 A interface web não acrescenta nenhuma dependência: `http.server` da stdlib
 serve os arquivos, e o Leaflet vem de CDN.
 
+## Deploy
+
+O `Dockerfile` fixa **Python 3.10**, e isso não é preferência: o
+`passpredict` publica wheels só para cp38/cp39/cp310 (veja
+`[tool.cibuildwheel]` no `pyproject.toml` dele). Em 3.11+ o `pip` cai no
+sdist e tenta compilar extensão C com Cython, numpy e scipy.
+
+Isso descarta plataformas que impõem a versão do Python -- a Vercel, por
+exemplo, só oferece 3.12 e não aceita Docker. Serve qualquer lugar que
+rode container: Render, Railway, Fly.io, Hugging Face Spaces.
+
+```bash
+docker build -t tle-simulator .
+docker run --rm -p 8000:8000 tle-simulator
+```
+
+Em produção a porta vem de `$PORT` e o host de `$HOST`, que é o que as
+plataformas injetam. O `render.yaml` na raiz configura a Render sozinho.
+
+Não há autenticação: qualquer um com a URL calcula passagens. O limite
+de amostras por requisição (`MAX_SAMPLES`, em `web/api.py`) é o que
+impede uma requisição de prender o processo.
+
 ## Testes
 
 ```bash

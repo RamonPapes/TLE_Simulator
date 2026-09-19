@@ -163,6 +163,42 @@ class TestComputePass:
             compute_pass({**BASE_PAYLOAD, "step_s": 1, "pad_s": 1800, "altitude_km": 2000})
 
 
+class TestConfiguracaoPorAmbiente:
+    """A hospedagem escolhe a porta e a anuncia em $PORT.
+
+    Um container que ignore isso sobe, passa no build e nunca recebe
+    tráfego -- falha silenciosa, que é a pior de depurar.
+    """
+
+    @staticmethod
+    def _reload(monkeypatch, **env):
+        import importlib
+
+        from my_pass_prediction.web import server
+
+        for key in ("HOST", "PORT"):
+            monkeypatch.delenv(key, raising=False)
+        for key, value in env.items():
+            monkeypatch.setenv(key, value)
+        return importlib.reload(server)
+
+    def test_sem_ambiente_fica_no_localhost(self, monkeypatch):
+        server = self._reload(monkeypatch)
+        assert server.DEFAULT_HOST == "127.0.0.1"
+        assert server.DEFAULT_PORT == 8000
+
+    def test_porta_e_host_vem_do_ambiente(self, monkeypatch):
+        server = self._reload(monkeypatch, PORT="10000", HOST="0.0.0.0")
+        assert server.DEFAULT_PORT == 10000
+        assert server.DEFAULT_HOST == "0.0.0.0"
+
+    def test_a_linha_de_comando_vence_o_ambiente(self, monkeypatch):
+        parser = self._reload(monkeypatch, PORT="10000", HOST="0.0.0.0").build_parser()
+        assert parser.parse_args([]).port == 10000
+        assert parser.parse_args(["--port", "9999"]).port == 9999
+        assert parser.parse_args(["--host", "localhost"]).host == "localhost"
+
+
 @pytest.mark.integration
 class TestServerRoutes:
     @staticmethod
